@@ -6,7 +6,7 @@ export class StateEditor implements Readonly<State> {
 	readonly selection: Readonly<Selection>
 	private constructor(state: Readonly<State>) {
 		this.value = state.value
-		this.selection = { start: state.selection.start, end: state.selection.end }
+		this.selection = { start: state.selection.start, end: state.selection.end, direction: state.selection.direction }
 	}
 
 	get(index: number, length = 1): string {
@@ -33,7 +33,10 @@ export class StateEditor implements Readonly<State> {
 			while ((s = result.value.search(start)) > -1)
 				result = result.replace(s, s + start.length, end)
 		} else if (typeof start == "number" && typeof end == "number") {
-			const state = { value: this.value, selection: { start: this.selection.start, end: this.selection.end } }
+			const state = {
+				value: this.value,
+				selection: { start: this.selection.start, end: this.selection.end, direction: this.selection.direction },
+			}
 			if (!value)
 				value = ""
 			state.value = this.value.slice(0, start) + value + this.value.slice(end, this.value.length)

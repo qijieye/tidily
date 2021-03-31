@@ -18,32 +18,35 @@ export namespace Action {
 		action?: Action
 	): Readonly<State> & Readonly<Settings> {
 		const result = State.copy(formatter.unformat(StateEditor.copy(state)))
+
 		if (action) {
-			if (action.key == "ArrowLeft") {
-				result.selection.start -= result.selection.start > 0 ? 1 : 0
-				if (!action.shiftKey)
-					// no create or extend selection
-					result.selection.end = result.selection.start
-			} else if (action.key == "ArrowRight") {
-				result.selection.end += result.selection.end < result.value.length ? 1 : 0
-				if (!action.shiftKey)
-					// no create or extend selection
-					result.selection.start = result.selection.end
-			} else if (action.key == "Home") {
-				result.selection.start = 0
-				if (!action.shiftKey)
-					// no create or extend selection
-					result.selection.end = result.selection.start
-			} else if (action.key == "End") {
-				result.selection.end = result.value.length
-				if (!action.shiftKey)
-					// no create or extend selection
-					result.selection.start = result.selection.end
+			if (action.key == "ArrowLeft" || action.key == "ArrowRight" || action.key == "Home" || action.key == "End") {
+				let cursorPosition: number =
+					result.selection.direction == "backward" ? result.selection.start : result.selection.end
+				let otherPosition: number =
+					cursorPosition == result.selection.start ? result.selection.end : result.selection.start
+
+				cursorPosition =
+					action.key == "Home"
+						? 0
+						: action.key == "End"
+						? result.value.length
+						: result.selection.start == result.selection.end || action.shiftKey
+						? Math.min(Math.max(cursorPosition + (action.key == "ArrowLeft" ? -1 : 1), 0), result.value.length)
+						: action.key == "ArrowLeft"
+						? result.selection.start
+						: result.selection.end
+				otherPosition = action.shiftKey ? otherPosition : cursorPosition
+				result.selection.direction =
+					otherPosition < cursorPosition ? "forward" : otherPosition > cursorPosition ? "backward" : "none"
+				result.selection.start = Math.min(otherPosition, cursorPosition)
+				result.selection.end = Math.max(otherPosition, cursorPosition)
 			} else if (action.ctrlKey) {
 				switch (action.key) {
 					case "a":
 						result.selection.start = 0
 						result.selection.end = result.value.length
+						result.selection.direction = "forward"
 				}
 			} else {
 				if (result.selection.start != result.selection.end) {
