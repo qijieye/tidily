@@ -134,4 +134,48 @@ describe("text", () => {
 			selection: { start: 15, end: 18, direction: "forward" },
 		})
 	})
+	it("Backspace", () => {
+		const result = Action.apply(
+			handler,
+			{ value: "This is a sentence", selection: { start: 4, end: 4 } },
+			{ key: "Backspace" }
+		)
+		expect(result).toMatchObject({
+			value: "Thi is a sentence",
+			selection: { start: 3, end: 3 },
+		})
+	})
+	it("Backspace with selection", () => {
+		const result = Action.apply(
+			handler,
+			{ value: "This is a sentence", selection: { start: 4, end: 9, direction: "backward" } },
+			{ key: "Backspace" }
+		)
+		expect(result).toMatchObject({
+			value: "This sentence",
+			selection: { start: 4, end: 4 },
+		})
+	})
+	it("Delete", () => {
+		const result = Action.apply(
+			handler,
+			{ value: "This is a sentence", selection: { start: 4, end: 4, direction: "backward" } },
+			{ key: "Delete" }
+		)
+		expect(result).toMatchObject({
+			value: "Thisis a sentence",
+			selection: { start: 4, end: 4 },
+		})
+	})
+	it("Delete with selection", () => {
+		const result = Action.apply(
+			handler,
+			{ value: "This is a sentence", selection: { start: 4, end: 9, direction: "backward" } },
+			{ key: "Delete" }
+		)
+		expect(result).toMatchObject({
+			value: "This sentence",
+			selection: { start: 4, end: 4 },
+		})
+	})
 })

@@ -19,49 +19,44 @@ export namespace Action {
 	): Readonly<State> & Readonly<Settings> {
 		const result = State.copy(formatter.unformat(StateEditor.copy(state)))
 
-		const hasSelection = result.selection.start != result.selection.end
-		const cursor: "start" | "end" = !hasSelection ? "start" : result.selection.direction == "backward" ? "start" : "end"
-		const other: "start" | "end" = cursor == "start" ? "end" : "start"
-		let cursorPos: number = result.selection[cursor]
-		let otherPos: number = result.selection[other]
+		let cursorPos: number =
+			result.selection.start == result.selection.end
+				? result.selection.start
+				: result.selection.direction == "backward"
+				? result.selection.start
+				: result.selection.end
+		let otherPos: number = cursorPos == result.selection.start ? result.selection.end : result.selection.start
 
 		if (action) {
-			if (action.key == "ArrowLeft") {
-				if (hasSelection) {
-					cursorPos = !action.shiftKey ? result.selection.start : cursorPos > 0 ? cursorPos - 1 : 0
-					otherPos = !action.shiftKey ? cursorPos : otherPos
-				} else {
-					cursorPos -= cursorPos > 0 ? 1 : 0
+			if (action.key == "ArrowLeft" || action.key == "ArrowRight" || action.key == "Home" || action.key == "End") {
+				if (action.key == "ArrowLeft") {
+					if (result.selection.start != result.selection.end) {
+						cursorPos = action.shiftKey ? (cursorPos > 0 ? cursorPos - 1 : 0) : result.selection.start
+						otherPos = action.shiftKey ? otherPos : cursorPos
+					} else {
+						cursorPos -= cursorPos > 0 ? 1 : 0
+						otherPos = action.shiftKey ? otherPos : cursorPos
+					}
+				} else if (action.key == "ArrowRight") {
+					if (result.selection.start != result.selection.end) {
+						cursorPos = !action.shiftKey
+							? result.selection.end
+							: cursorPos < result.value.length
+							? cursorPos + 1
+							: result.value.length
+						otherPos = action.shiftKey ? otherPos : cursorPos
+					} else {
+						cursorPos += cursorPos < result.value.length ? 1 : 0
+						otherPos = action.shiftKey ? otherPos : cursorPos
+					}
+				} else if (action.key == "Home") {
+					cursorPos = 0
+					otherPos = action.shiftKey ? otherPos : cursorPos
+				} else if (action.key == "End") {
+					cursorPos = result.value.length
 					otherPos = !action.shiftKey ? cursorPos : otherPos
 				}
 				result.selection.direction = otherPos < cursorPos ? "forward" : otherPos > cursorPos ? "backward" : "none"
-				result.selection.start = Math.min(otherPos, cursorPos)
-				result.selection.end = Math.max(otherPos, cursorPos)
-			} else if (action.key == "ArrowRight") {
-				if (hasSelection) {
-					cursorPos = !action.shiftKey
-						? result.selection.end
-						: cursorPos < result.value.length
-						? cursorPos + 1
-						: result.value.length
-					otherPos = action.shiftKey ? otherPos : cursorPos
-				} else {
-					cursorPos += cursorPos < result.value.length ? 1 : 0
-					otherPos = action.shiftKey ? otherPos : cursorPos
-				}
-				result.selection.direction = otherPos < cursorPos ? "forward" : otherPos > cursorPos ? "backward" : "none"
-				result.selection.start = Math.min(otherPos, cursorPos)
-				result.selection.end = Math.max(otherPos, cursorPos)
-			} else if (action.key == "Home") {
-				cursorPos = 0
-				otherPos = !action.shiftKey ? cursorPos : otherPos
-				result.selection.direction = "backward"
-				result.selection.start = Math.min(otherPos, cursorPos)
-				result.selection.end = Math.max(otherPos, cursorPos)
-			} else if (action.key == "End") {
-				cursorPos = result.value.length
-				otherPos = !action.shiftKey ? cursorPos : otherPos
-				result.selection.direction = "forward"
 				result.selection.start = Math.min(otherPos, cursorPos)
 				result.selection.end = Math.max(otherPos, cursorPos)
 			} else if (action.ctrlKey) {
