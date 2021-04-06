@@ -19,16 +19,16 @@ export namespace Action {
 	): Readonly<State> & Readonly<Settings> {
 		const result = State.copy(formatter.unformat(StateEditor.copy(state)))
 
-		let cursorPos: number =
-			result.selection.start == result.selection.end
-				? result.selection.start
-				: result.selection.direction == "backward"
-				? result.selection.start
-				: result.selection.end
-		let otherPos: number = cursorPos == result.selection.start ? result.selection.end : result.selection.start
-
 		if (action) {
 			if (action.key == "ArrowLeft" || action.key == "ArrowRight" || action.key == "Home" || action.key == "End") {
+				let cursorPos: number =
+					result.selection.start == result.selection.end
+						? result.selection.start
+						: result.selection.direction == "backward"
+						? result.selection.start
+						: result.selection.end
+				let otherPos: number = cursorPos == result.selection.start ? result.selection.end : result.selection.start
+
 				if (action.key == "ArrowLeft") {
 					if (result.selection.start != result.selection.end) {
 						cursorPos = action.shiftKey ? (cursorPos > 0 ? cursorPos - 1 : 0) : result.selection.start
