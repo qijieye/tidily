@@ -1,3 +1,4 @@
+import { Alpha2 } from "isoly/dist/CountryCode"
 import { Converter } from "../Converter"
 import { Formatter } from "../Formatter"
 import { Settings } from "../Settings"
@@ -7,6 +8,7 @@ import { add } from "./base"
 import { phonePrefix } from "./phonePrefix"
 
 class Handler implements Converter<string>, Formatter {
+	constructor(readonly country: Alpha2 | undefined) {}
 	toString(data: string | any): string {
 		return typeof data == "string" ? data : ""
 	}
@@ -14,6 +16,7 @@ class Handler implements Converter<string>, Formatter {
 		return typeof value == "string" ? value : undefined
 	}
 	format(unformated: StateEditor): Readonly<State> & Settings {
+		this.country ? console.log(this.country) : console.log("Phone converter has no country")
 		let result = unformated
 		if (result.value.startsWith("+")) {
 			for (const country of phonePrefix)
@@ -81,4 +84,4 @@ class Handler implements Converter<string>, Formatter {
 		)
 	}
 }
-add("phone", () => new Handler())
+add("phone", (argument?: any[]) => new Handler(argument && argument.length > 0 ? argument[0] : undefined))
