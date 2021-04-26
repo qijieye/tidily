@@ -1,5 +1,22 @@
 export const phonePrefix = [
 	{
+		countryCode: "+375",
+		areaCodes: [
+			"0163", // Baranovici
+			"0225", // Bobruysk
+			"0177", // Borisov
+			"0162", // Brest
+			"0232", // Gomel
+			"0152", // Grodno
+			"017", // Minsk
+			"0222", // Mogilev
+			"02351", // Mozyr
+			"01797", // Myadel
+			"0216", // Orsha
+			"0212", // Vitebsk
+		],
+	},
+	{
 		countryCode: "+46",
 		areaCodes: [
 			"011",
